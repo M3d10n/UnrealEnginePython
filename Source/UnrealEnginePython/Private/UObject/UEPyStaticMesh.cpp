@@ -17,6 +17,62 @@ PyObject *py_ue_static_mesh_get_bounds(ue_PyUObject *self, PyObject * args)
     return py_ue_new_owned_uscriptstruct(u_struct, (uint8 *)&bounds);
 }
 
+
+PyObject * py_ue_static_mesh_get_vertices(ue_PyUObject *self, PyObject * args)
+{
+	ue_py_check(self);
+	UStaticMesh *mesh = ue_py_check_type<UStaticMesh>(self);
+	if (!mesh)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UStaticMesh");
+
+	int lod_level;
+	int section_index = -1;
+	if (!PyArg_ParseTuple(args, "i|i:get_static_mesh_vertices", &lod_level, &section_index))
+		return nullptr;
+
+	PyObject *py_list = PyList_New(0);
+
+	if (mesh != nullptr)
+	{
+		if (!mesh->bAllowCPUAccess)
+		{
+			return PyErr_Format(PyExc_Exception, "UStaticMesh %s bAllowCPUAccess is not enabled! Cannot access vertices!", TCHAR_TO_UTF8(*mesh->GetName()));
+		}
+
+		if (mesh->RenderData != nullptr && mesh->RenderData->LODResources.IsValidIndex(lod_level))
+		{
+			const FStaticMeshLODResources& LOD = mesh->RenderData->LODResources[lod_level];
+
+			int start_section = section_index == -1 ? 0 : section_index;
+			int end_section = section_index == -1 ? LOD.Sections.Num() : section_index + 1;
+
+			for (int i = start_section; i < end_section; i++)
+			{
+				if (LOD.Sections.IsValidIndex(i))
+				{
+					// Map from vert buffer for whole mesh to vert buffer for section of interest
+					TMap<int32, int32> MeshToSectionVertMap;
+
+					const FStaticMeshSection& Section = LOD.Sections[i];
+					const uint32 OnePastLastIndex = Section.FirstIndex + Section.NumTriangles * 3;
+					FIndexArrayView Indices = LOD.IndexBuffer.GetArrayView();
+
+					// Iterate over section index buffer, copying verts as needed
+					for (uint32 i = Section.FirstIndex; i < OnePastLastIndex; i++)
+					{
+						uint32 MeshVertIndex = Indices[i];
+
+						// See if we have this vert already in our section vert buffer, and copy vert in if not 
+						PyList_Append(py_list, py_ue_new_fvector(LOD.VertexBuffers.PositionVertexBuffer.VertexPosition(MeshVertIndex)));
+					}
+				}
+			}
+		}
+	}
+
+	return py_list;
+}
+
 #if WITH_EDITOR
 
 #include "Wrappers/UEPyFRawMesh.h"
