@@ -314,7 +314,7 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeAdditionalModulesPath"), IniValue, GEngineIni))
 	{
-		AdditionalModulesPath = FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue);
+		AdditionalModulesPath = IFileManager::Get().ConvertToAbsolutePathForExternalAppForRead(*FPaths::Combine(*PROJECT_CONTENT_DIR, *IniValue));
 	}
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ZipPath"), IniValue, GEngineIni))
