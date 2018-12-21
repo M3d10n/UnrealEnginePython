@@ -3339,7 +3339,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
                     UProperty *prop = new_property_from_pyobject(function, TCHAR_TO_UTF8(*out_param_name), item);
                     if (prop)
                     {
-                        uint64 flags = CPF_Parm | CPF_OutParm;
+                        EPropertyFlags flags = CPF_Parm | CPF_OutParm;
                         if (i == return_param_index)
                             flags |= CPF_ReturnParm;
                         prop->SetPropertyFlags(flags);
@@ -3361,7 +3361,7 @@ UFunction *unreal_engine_add_function(UClass *u_class, char *name, PyObject *py_
                 UProperty *prop = new_property_from_pyobject(function, TCHAR_TO_UTF8(*param_name), py_return_value);
                 if (prop)
                 {
-                    uint64 flags = CPF_Parm | CPF_OutParm;
+										EPropertyFlags flags = CPF_Parm | CPF_OutParm;
                     if (return_param_index != -1)
                         flags |= CPF_ReturnParm;
                     prop->SetPropertyFlags(flags);
