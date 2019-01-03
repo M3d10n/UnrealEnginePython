@@ -22,8 +22,9 @@ public class UnrealEnginePython : ModuleRules
         "C:/Program Files/Python36",
         "C:/Program Files/Python35",
         "C:/Python27",
-        "C:/IntelPython35"
-    };
+        "C:/IntelPython35",
+		System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Programs/Python/Python37"),
+	};
 
     private string[] macKnownPaths =
     {
@@ -94,10 +95,10 @@ public class UnrealEnginePython : ModuleRules
 #endif
     {
 
-        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;		
         string enableUnityBuild = System.Environment.GetEnvironmentVariable("UEP_ENABLE_UNITY_BUILD");
         bFasterWithoutUnity = string.IsNullOrEmpty(enableUnityBuild);
-
+				
         PublicIncludePaths.AddRange(
             new string[] {
                 "UnrealEnginePython/Public",
